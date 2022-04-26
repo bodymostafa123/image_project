@@ -1,5 +1,6 @@
 def draw_lane(img, left_line, right_line, lane_color=(255, 0,255), road_color=(50, 255,50)):
     """ draw lane lines & current driving space """
+    
     window_img = np.zeros_like(img)
 
     window_margin = left_line.window_margin
