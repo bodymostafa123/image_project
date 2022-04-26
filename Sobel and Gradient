@@ -114,3 +114,11 @@ def hls_combine(img, th_h, th_l, th_s):
     #hls_comb[((s_img > 1) & (h_img > 1)) | (R > 1)] = 255
     return hls_comb
 
+def comb_result(grad, hls):
+    """ give different value to distinguish them """
+    result = np.zeros_like(hls).astype(np.uint8)
+    #result[((grad > 1) | (hls > 1))] = 255
+    result[(grad > 1)] = 100
+    result[(hls > 1)] = 255
+
+    return result
