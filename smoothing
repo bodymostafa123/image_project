@@ -1,0 +1,12 @@
+def smoothing(lines, pre_lines=3):
+    # collect lines & print average line
+    lines = np.squeeze(lines)
+    avg_line = np.zeros((720))
+
+    for ii, line in enumerate(reversed(lines)):
+        if ii == pre_lines:
+            break
+        avg_line += line
+    avg_line = avg_line / pre_lines
+
+    return avg_line
