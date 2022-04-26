@@ -1,3 +1,4 @@
+# take the average of 10 lines
 def smoothing(lines, pre_lines=3):
     # collect lines & print average line
     lines = np.squeeze(lines)
