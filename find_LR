@@ -1,13 +1,1 @@
-def find_LR_lines(binary_img, left_line, right_line):
-    """
-    find left, right lines & isolate left, right lines
-    blind search - first frame, lost lane lines
-    previous window - after detecting lane lines in previous frame
-    """
 
-    # if don't have lane lines info
-    if left_line.detected == False:
-        return blind_search(binary_img, left_line, right_line)
-    # if have lane lines info
-    else:
-        return prev_window_refer(binary_img, left_line, right_line)
