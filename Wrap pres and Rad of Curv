@@ -1,0 +1,50 @@
+def warp_image(img, src, dst, size):
+    """ Perspective Transform """
+    M = cv2.getPerspectiveTransform(src, dst)
+    Minv = cv2.getPerspectiveTransform(dst, src)
+    warp_img = cv2.warpPerspective(img, M, size, flags=cv2.INTER_LINEAR)
+
+    return warp_img, M, Minv
+
+def rad_of_curvature(left_line, right_line):
+    """ measure radius of curvature  """
+
+    ploty = left_line.ally
+    leftx, rightx = left_line.allx, right_line.allx
+
+    leftx = leftx[::-1]  # Reverse to match top-to-bottom in y
+    rightx = rightx[::-1]  # Reverse to match top-to-bottom in y
+
+    # Define conversions in x and y from pixels space to meters
+    width_lanes = abs(right_line.startx - left_line.startx)+1
+    ym_per_pix = 30 / 720  # meters per pixel in y dimension
+    xm_per_pix = 3.7*(720/1280) / width_lanes  # meters per pixel in x dimension
+
+    # Define y-value where we want radius of curvature
+    # the maximum y-value, corresponding to the bottom of the image
+    y_eval = np.max(ploty)
+
+    # Fit new polynomials to x,y in world space
+    left_fit_cr = np.polyfit(ploty * ym_per_pix, leftx * xm_per_pix, 2)
+    right_fit_cr = np.polyfit(ploty * ym_per_pix, rightx * xm_per_pix, 2)
+    # Calculate the new radii of curvature
+    left_curverad = ((1 + (2 * left_fit_cr[0] * y_eval * ym_per_pix + left_fit_cr[1]) ** 2) ** 1.5) / np.absolute(
+        2 * left_fit_cr[0])
+    right_curverad = ((1 + (2 * right_fit_cr[0] * y_eval * ym_per_pix + right_fit_cr[1]) ** 2) ** 1.5) / np.absolute(
+        2 * right_fit_cr[0])
+    # radius of curvature result
+    left_line.radius_of_curvature = left_curverad
+    right_line.radius_of_curvature = right_curverad
+
+def smoothing(lines, pre_lines=3):
+    # collect lines & print average line
+    lines = np.squeeze(lines)
+    avg_line = np.zeros((720))
+
+    for ii, line in enumerate(reversed(lines)):
+        if ii == pre_lines:
+            break
+        avg_line += line
+    avg_line = avg_line / pre_lines
+
+    return avg_line
