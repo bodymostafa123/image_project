@@ -121,8 +121,19 @@ def blind_search(b_img, left_line, right_line):
 
     left_line.startx, right_line.startx = left_line.allx[len(left_line.allx)-1], right_line.allx[len(right_line.allx)-1]
     left_line.endx, right_line.endx = left_line.allx[0], right_line.allx[0]
-
-    left_line.detected, right_line.detected = True, True
     # print radius of curvature
     rad_of_curvature(left_line, right_line)
     return output
+
+
+
+def find_LR_lines(binary_img, left_line, right_line):
+    """
+    find left, right lines & isolate left, right lines
+    blind search - first frame, lost lane lines
+    previous window - after detecting lane lines in previous frame
+    """
+
+    # if don't have lane lines info
+    if left_line.detected == False:
+        return blind_search(binary_img, left_line, right_line)
