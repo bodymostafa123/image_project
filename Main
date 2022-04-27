@@ -52,7 +52,7 @@ if __name__ == '__main__':
             c_rows, c_cols = combined_result.shape[:2]
             print(c_rows)
             print(c_cols)
-            s_LTop2, s_RTop2 = [c_cols / 2 - 80, 5], [c_cols / 2 + 80, 5]
+            s_LTop2, s_RTop2 = [c_cols / 2 - 24, 5], [c_cols / 2 + 24, 5]
             s_LBot2, s_RBot2 = [110, c_rows], [c_cols - 110, c_rows]
 
             src = np.float32([s_LBot2, s_LTop2, s_RTop2, s_RBot2])
