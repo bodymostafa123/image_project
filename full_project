@@ -664,3 +664,204 @@ def img_show(img , title, cmap_type="gray" ):
 #img_show(final[148] ,"gfgdkfjgdkjglkdjf" )
 
 
+###################################################################################################################################################################
+###################################################################################################################################################################
+###################################################################################################################################################################
+
+
+# Yolo Object Detection.
+
+### import some libraries
+
+import cv2
+import os
+import numpy as np
+import time
+import glob
+import matplotlib.pyplot as plt
+
+### load yolo weights and cfg
+
+cfg_path = os.path.join("yolo","yolov3.cfg.txt")
+weight_path = os.path.join("yolo","yolov3.weights")
+
+### load the neural net in cv2
+
+net = cv2.dnn.readNetFromDarknet(cfg_path,weight_path)
+
+### get Layers Names
+
+names =net.getLayerNames()
+
+
+### load the test image
+
+# Importing all necessary libraries
+import cv2
+import os
+
+# Read the video from specified path
+cam = cv2.VideoCapture("harder_challenge_video.mp4")
+
+try:
+	
+	# creating a folder named data
+	if not os.path.exists('data'):
+		os.makedirs('data')
+
+# if not created then raise error
+except OSError:
+	print ('Error: Creating directory of data')
+
+# frame
+currentframe = 0
+
+while(True):
+	
+	# reading from frame
+	ret,frame = cam.read()
+
+	if ret:
+		# if video is still left continue creating images
+		name = './data/frame' + str(currentframe) + '.jpg'
+
+
+		# writing the extracted images
+		cv2.imwrite(name, frame)
+
+		# increasing counter so that it will
+		# show how many frames are created
+		currentframe += 1
+	else:
+		break
+        
+
+# Release all space and windows once done
+cam.release()
+cv2.destroyAllWindows()
+
+
+
+
+Frames = []
+for i in range(0,currentframe,5):
+    img = cv2.imread("data/frame"+ ""+str(i)+".jpg")
+    img= cv2.cvtColor(img,cv2.COLOR_BGR2RGB)
+    height, width, layers = img.shape
+    size = (width,height)
+    Frames.append(img)
+
+#plt.imshow(Frames[100])
+
+
+
+(H,W)=Frames[20].shape[:2]
+layers_names =[names[i-1] for i in net.getUnconnectedOutLayers()]
+layers_names
+
+### run the interface on the test image
+
+labels_path = os.path.join("yolo","coco.names.txt")
+labels=open (labels_path).read().strip().split("\n")
+labels=np.array(labels)
+labels=labels[1:8]
+
+for j in range(len(Frames)):
+    boxes =[]
+    confidences=[]
+    classIDs=[]
+    x_bef , y_bef  , w_bef , h_bef  = 0 , 0 , 1 , 1
+    
+    
+    blob = cv2.dnn.blobFromImage(Frames[j], 1/255.0, (416,416), crop=False, swapRB=False)
+    net.setInput(blob)
+
+    #cal the time of our algo
+    start_t =time.time()
+    layers_output =net.forward(layers_names)
+       
+    
+    for output in layers_output:
+        for dection in output:
+            scores = dection[6:13]
+            classID =np.argmax(scores)
+            confidence=scores[classID]
+
+            if confidence> 0.5 :
+                box = dection[:4] * np.array([W,H,W,H])
+                bx,by,bw,bh= box.astype("int")
+
+                x=int(bx-(bw/2))
+                y=int(by-(bh/2))
+
+
+                boxes.append([x,y,int(bw),int(bh)])
+                confidences.append(float(confidence))
+                classIDs.append(classID)
+                
+                
+    
+    
+    idxs =cv2.dnn.NMSBoxes(boxes,confidences,0.5,0.5)
+    if len(idxs) > 0:
+    
+        for i in idxs.flatten():
+            (x,y)=[boxes[i][0],boxes[i][1]]
+            (w,h)=[boxes[i][2],boxes[i][3]]
+            
+            
+            dx = min(x+w, x_bef+w_bef) - max(x, x_bef)
+            dy = min(y+h,y_bef+h_bef) - max(y, y_bef)
+            if (dx>=0) and (dy>=0):
+                intersection =  dx*dy
+            else:
+                intersection = 0
+            #print(j," ",intersection/(w*h) ,x ," ",y," ",w," ",h," ",x_bef ," ",y_bef," ",w_bef," ",h_bef)
+            if((w <= 1000) and ((intersection/(w*h))< 0.75)):
+                
+                cv2.rectangle(Frames[j],(x,y),(x+w,y+h),(0,255,255),2)
+                cv2.putText(Frames[j],"{}"":" "{}".format(labels[classIDs[i]], str(round(confidences[i], 3))),(x,y-5),cv2.FONT_HERSHEY_PLAIN,1.5,(0,139,139),2)
+                x_bef , y_bef  , w_bef , h_bef  = x , y , w , h  
+
+
+### plot the bounding boxes in the image
+
+#cv2.imshow("image",cv2.cvtColor(Frames[50],cv2.COLOR_BGR2RGB))
+#cv2.waitKey(0)
+
+import os
+if not os.path.exists("data6"):
+    os.makedirs('data6')
+for i in range(len(Frames)):
+    Frames[i]= cv2.cvtColor(Frames[i],cv2.COLOR_BGR2RGB)
+    name = './data6/frame'+ ""+str(i)+ '.jpg'
+    cv2.imwrite(name,Frames[i])
+
+import cv2
+import numpy as np
+import glob
+
+img_array = []
+i = 0
+#for filename in glob.glob("data5/frame"+ ""+str(i)+".jpg"):
+for i in range(len(Frames)):
+    img = cv2.imread("data6/frame"+ ""+str(i)+".jpg")
+    height, width, layers = img.shape
+    size = (width,height)
+    img_array.append(img)
+
+
+out = cv2.VideoWriter('project6.avi',cv2.VideoWriter_fourcc(*'DIVX'), 5 , size)
+ 
+for i in range(len(img_array)):
+    out.write(img_array[i])
+out.release()
+
+
+
+
+
+
+
+
+
