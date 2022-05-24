@@ -143,14 +143,14 @@ for j in range(len(Frames)):
                 
     
     
-    idxs =cv2.dnn.NMSBoxes(boxes,confidences,0.5,0.5)
+    idxs =cv2.dnn.NMSBoxes(boxes,confidences,0.5,0.4)
     if len(idxs) > 0:
     
         for i in idxs.flatten():
             (x,y)=[boxes[i][0],boxes[i][1]]
             (w,h)=[boxes[i][2],boxes[i][3]]
             
-            
+            '''
             dx = min(x+w, x_bef+w_bef) - max(x, x_bef)
             dy = min(y+h,y_bef+h_bef) - max(y, y_bef)
             if (dx>=0) and (dy>=0):
@@ -159,7 +159,8 @@ for j in range(len(Frames)):
                 intersection = 0
             #print(j," ",intersection/(w*h) ,x ," ",y," ",w," ",h," ",x_bef ," ",y_bef," ",w_bef," ",h_bef)
             if((w <= 1000) and ((intersection/(w*h))< 0.75)):
-                
+               '''
+	    if(w <= 1000):   
                 cv2.rectangle(Frames[j],(x,y),(x+w,y+h),(0,255,255),2)
                 cv2.putText(Frames[j],"{}"":" "{}".format(labels[classIDs[i]], str(round(confidences[i], 3))),(x,y-5),cv2.FONT_HERSHEY_PLAIN,1.5,(0,139,139),2)
                 x_bef , y_bef  , w_bef , h_bef  = x , y , w , h  
